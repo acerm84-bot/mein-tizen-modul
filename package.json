@@ -4,7 +4,7 @@
   "description": "Eigenes TizenBrew-App-Modul (Starter)",
   "packageType": "app",
   "appName": "Mein Modul",
-  "appPath": "app/index.html",
+  "appPath": "index.html",
   "serviceFile": "service.js",
   "evaluateScriptOnDocumentStart": false,
   "keys": [
