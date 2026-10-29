@@ -1,0 +1,27 @@
+{
+  "name": "mein-tizen-modul",
+  "version": "1.0.0",
+  "description": "Eigenes TizenBrew-App-Modul (Starter)",
+  "packageType": "app",
+  "appName": "Mein Modul",
+  "appPath": "app/index.html",
+  "serviceFile": "service.js",
+  "evaluateScriptOnDocumentStart": false,
+  "keys": [
+    "ArrowUp",
+    "ArrowDown",
+    "ArrowLeft",
+    "ArrowRight",
+    "Enter",
+    "Back",
+    "ColorF0Red",
+    "ColorF1Green",
+    "ColorF2Yellow",
+    "ColorF3Blue"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/acerm84-bot/mein-tizen-modul.git"
+  },
+  "license": "MIT"
+}

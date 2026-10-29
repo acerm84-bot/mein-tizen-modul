@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1920, height=1080">
+  <title>Mein Modul</title>
+  <style>
+    :root {
+      --bg1: #0a0c14; --bg2: #121734; --fg: #eef1f8; --dim: #9aa2bd;
+      --tile: #161b2e; --tile-focus: #1e2746; --accent: #5b8cff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; overflow: hidden;
+      font-family: "Segoe UI", system-ui, sans-serif; color: var(--fg);
+      background: radial-gradient(130% 110% at 15% 0%, var(--bg2) 0%, var(--bg1) 60%); }
+    .wrap { height: 100vh; display: flex; flex-direction: column; padding: 72px 90px; }
+
+    header { display: flex; align-items: flex-end; justify-content: space-between; }
+    header h1 { font-size: 60px; font-weight: 700; letter-spacing: -1px; }
+    header h1 span { color: var(--accent); }
+    .time { text-align: right; }
+    .time .clock { font-size: 40px; font-weight: 600; }
+    .time .date { font-size: 22px; color: var(--dim); margin-top: 2px; }
+
+    .grid { margin-top: 64px; display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 36px; flex: 1; align-content: start; }
+    .tile { position: relative; height: 260px; border-radius: 24px; overflow: hidden;
+      background: var(--tile); border: 3px solid transparent;
+      display: flex; flex-direction: column; justify-content: space-between;
+      padding: 30px; transition: transform .14s ease, border-color .14s, background .14s;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+    .badge { width: 72px; height: 72px; border-radius: 18px; display: flex;
+      align-items: center; justify-content: center; font-size: 34px; font-weight: 700;
+      color: #fff; }
+    .label { font-size: 32px; font-weight: 600; }
+    .label small { display: block; font-size: 19px; color: var(--dim);
+      font-weight: 400; margin-top: 4px; }
+    .tile.focused { border-color: var(--accent); background: var(--tile-focus);
+      transform: translateY(-6px) scale(1.04);
+      box-shadow: 0 16px 44px rgba(91,140,255,.35); }
+
+    .hint { margin-top: 36px; color: var(--dim); font-size: 20px; }
+    .hint b { color: var(--fg); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Mein <span>Modul</span></h1>
+      <div class="time">
+        <div class="clock" id="clock">--:--</div>
+        <div class="date" id="date"></div>
+      </div>
+    </header>
+
+    <div class="grid" id="grid"></div>
+
+    <div class="hint">
+      <b>Pfeiltasten</b> Auswahl &nbsp;&middot;&nbsp; <b>Enter</b> &Ouml;ffnen
+      &nbsp;&middot;&nbsp; <b>Zur&uuml;ck</b> Beenden
+    </div>
+  </div>
+
+  <script>
+    // Kacheln: label + Aktion. "app" startet eine Tizen-App per App-ID,
+    // "url" öffnet eine Webseite. "color" = Farbe des Badges, "icon" = Kürzel.
+    const TILES = [
+      { label: "YouTube", sub: "App",      type: "app", id: "111299001912",  color: "#ff0033", icon: "YT" },
+      { label: "Netflix", sub: "App",      type: "app", id: "3201907018807", color: "#e50914", icon: "N"  },
+      { label: "Prime",   sub: "App",      type: "app", id: "3201910019365", color: "#1399ff", icon: "P"  },
+      { label: "Browser", sub: "Webseite", type: "url", url: "https://www.google.com", color: "#34a853", icon: "@" },
+    ];
+
+    const grid = document.getElementById("grid");
+    TILES.forEach((t, i) => {
+      const el = document.createElement("div");
+      el.className = "tile" + (i === 0 ? " focused" : "");
+      el.innerHTML =
+        `<div class="badge" style="background:${t.color}">${t.icon}</div>` +
+        `<div class="label">${t.label}<small>${t.sub}</small></div>`;
+      grid.appendChild(el);
+    });
+
+    let focus = 0;
+    const tiles = () => [...document.querySelectorAll(".tile")];
+    const cols = 4;
+
+    function setFocus(n) {
+      const t = tiles();
+      if (n < 0 || n >= t.length) return;
+      t[focus].classList.remove("focused");
+      focus = n;
+      t[focus].classList.add("focused");
+    }
+
+    function activate() {
+      const t = TILES[focus];
+      if (t.type === "app" && window.tizen && tizen.application) {
+        try { tizen.application.launch(t.id); } catch (e) { console.error(e); }
+      } else if (t.type === "url") {
+        location.href = t.url;
+      }
+    }
+
+    document.addEventListener("keydown", (e) => {
+      switch (e.keyCode) {
+        case 37: setFocus(focus - 1); break;          // links
+        case 39: setFocus(focus + 1); break;          // rechts
+        case 38: setFocus(focus - cols); break;       // hoch
+        case 40: setFocus(focus + cols); break;       // runter
+        case 13: activate(); break;                   // Enter
+        case 10009: history.back(); break;            // Zurück (Samsung)
+      }
+    });
+
+    function tick() {
+      const now = new Date();
+      document.getElementById("clock").textContent =
+        now.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+      document.getElementById("date").textContent =
+        now.toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" });
+    }
+    tick();
+    setInterval(tick, 10000);
+  </script>
+</body>
+</html>
